@@ -145,25 +145,21 @@ a {
   z-index: 0;
   display: flex;
   flex-direction: column;
-  /* צבע רקע רק כ"רשת ביטחון" למקרה שהתמונות עוד לא נטענו - אחרת נראות רק תמונות */
-  background: #0f172a;
-}
-.auth-background::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(15, 23, 42, 0.32) 0%, rgba(15, 23, 42, 0.55) 100%);
-  pointer-events: none;
+  justify-content: center;
+  overflow: hidden;
+  /* אין צבע רקע בכוונה - רק תמונות (העיגולים חופפים אחד את השני כדי לא להשאיר רווחים) */
 }
 
 .marquee-row {
-  flex: 1;
-  overflow: hidden;
+  overflow: visible;
   width: 100%;
+}
+.marquee-row + .marquee-row {
+  margin-top: -95px;
 }
 .marquee-track {
   display: flex;
-  height: 100%;
+  align-items: center;
   width: max-content;
   animation-name: marquee-left;
   animation-timing-function: linear;
@@ -190,10 +186,12 @@ a {
 }
 .scene-card {
   flex: 0 0 auto;
-  width: 32vw;
-  min-width: 340px;
-  height: 100%;
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
   overflow: hidden;
+  margin-inline-end: -85px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 .scene-card svg,
 .scene-card img {
@@ -201,6 +199,17 @@ a {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+@media (max-width: 700px) {
+  .scene-card {
+    width: 200px;
+    height: 200px;
+    margin-inline-end: -55px;
+  }
+  .marquee-row + .marquee-row {
+    margin-top: -60px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
