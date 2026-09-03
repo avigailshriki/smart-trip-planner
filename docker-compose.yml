@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: trip_planner_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: trip_user
+      POSTGRES_PASSWORD: trip_pass
+      POSTGRES_DB: trip_planner
+    ports:
+      - "5432:5432"
+    volumes:
+      - trip_planner_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U trip_user -d trip_planner"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  trip_planner_pgdata:
