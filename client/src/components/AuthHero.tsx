@@ -1,11 +1,9 @@
 import { useEffect, useState } from "react";
-import type { ReactNode } from "react";
 import { listBackgroundImages } from "../api/media";
 
-// רקע דקורטיבי: כמה "שורות" של תמונות שזזות ברצף אינסופי (marquee) מאחורי
-// מסכי ההתחברות/הרשמה. אם הועלו תמונות אמיתיות ל-server/public/backgrounds
-// הן ישמשו כרקע; אם לא (או שהשרת לא זמין) - נופל בחזרה לאיורי SVG גנריים
-// כדי שהמסך תמיד ייראה טוב.
+// הצד הגדול של מסך ה-split-screen: תמונה אחת גדולה שממלאת את כל הצד,
+// עם מעבר חלק (crossfade) לתמונה הבאה כל כמה שניות. אם הועלו תמונות
+// אמיתיות ל-server/public/backgrounds הן ישמשו; אחרת - איורי SVG גנריים.
 
 function MountainsScene() {
   return (
@@ -95,55 +93,11 @@ const FALLBACK_SCENES = [
   DesertBalloonScene,
 ];
 
-function rotate<T>(items: T[], by: number): T[] {
-  if (items.length === 0) return items;
-  const offset = by % items.length;
-  return [...items.slice(offset), ...items.slice(0, offset)];
-}
+const SLIDE_DURATION_MS = 5000;
 
-// חוזרים על הרשימה עד שיש מספיק "עותקים" כדי לכסות אפילו מסך רחב מאוד.
-// חשוב במיוחד כשיש מעט תמונות (1-3): בלי זה, ה"סט הבסיסי" קצר מרוחב המסך,
-// והלולאה של ה-marquee הייתה משאירה רגע של מסך ריק בלי תמונות בכלל.
-function repeatToMinimum<T>(items: T[], minCount: number): T[] {
-  if (items.length === 0) return items;
-  const repeats = Math.max(1, Math.ceil(minCount / items.length));
-  const result: T[] = [];
-  for (let i = 0; i < repeats; i++) result.push(...items);
-  return result;
-}
-
-function MarqueeRow({
-  items,
-  reverse = false,
-  durationSeconds = 45,
-}: {
-  items: ReactNode[];
-  reverse?: boolean;
-  durationSeconds?: number;
-}) {
-  // "סט בסיס" ארוך מספיק (גם אם יש רק תמונה אחת-שתיים), ואז מכפילים אותו פעמיים
-  // כדי שהאנימציה תלולאה בלי "קפיצה" ובלי רגע שבו נעלמות התמונות מהמסך.
-  const base = repeatToMinimum(items, 16);
-  const doubled = [...base, ...base];
-
-  return (
-    <div className="marquee-row">
-      <div
-        className={`marquee-track${reverse ? " reverse" : ""}`}
-        style={{ animationDuration: `${durationSeconds}s` }}
-      >
-        {doubled.map((node, index) => (
-          <div className="scene-card" key={index}>
-            {node}
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-export function TravelBackground() {
+export function AuthHero() {
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
+  const [index, setIndex] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -152,23 +106,38 @@ export function TravelBackground() {
         if (!cancelled) setUploadedImages(urls);
       })
       .catch(() => {
-        // אין תמונות/השרת לא זמין - פשוט נשארים עם ברירת המחדל (איורי ה-SVG)
+        // אין תמונות/השרת לא זמין - נשארים עם ברירת המחדל (איורי ה-SVG)
       });
     return () => {
       cancelled = true;
     };
   }, []);
 
-  const cards: ReactNode[] =
-    uploadedImages.length > 0
-      ? uploadedImages.map((src) => <img src={src} alt="" loading="lazy" key={src} />)
-      : FALLBACK_SCENES.map((Scene, index) => <Scene key={index} />);
+  const usePhotos = uploadedImages.length > 0;
+  const total = usePhotos ? uploadedImages.length : FALLBACK_SCENES.length;
+
+  useEffect(() => {
+    if (total <= 1) return;
+    const timer = setInterval(() => {
+      setIndex((current) => (current + 1) % total);
+    }, SLIDE_DURATION_MS);
+    return () => clearInterval(timer);
+  }, [total]);
 
   return (
-    <div className="auth-background" aria-hidden="true">
-      <MarqueeRow items={rotate(cards, 0)} durationSeconds={50} />
-      <MarqueeRow items={rotate(cards, 2)} reverse durationSeconds={65} />
-      <MarqueeRow items={rotate(cards, 4)} durationSeconds={40} />
+    <div className="auth-hero" aria-hidden="true">
+      {Array.from({ length: total }).map((_, i) => {
+        const isActive = i === index;
+        const Scene = usePhotos ? null : FALLBACK_SCENES[i];
+        return (
+          <div
+            className={`hero-layer${isActive ? " active" : ""}`}
+            key={usePhotos ? uploadedImages[i] : i}
+          >
+            {usePhotos ? <img src={uploadedImages[i]} alt="" /> : Scene && <Scene />}
+          </div>
+        );
+      })}
     </div>
   );
 }
