@@ -93,7 +93,7 @@ const FALLBACK_SCENES = [
   DesertBalloonScene,
 ];
 
-const SLIDE_DURATION_MS = 5000;
+const SLIDE_DURATION_MS = 1000;
 
 export function AuthHero() {
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
