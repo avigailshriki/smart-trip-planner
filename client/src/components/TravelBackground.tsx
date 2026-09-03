@@ -101,6 +101,17 @@ function rotate<T>(items: T[], by: number): T[] {
   return [...items.slice(offset), ...items.slice(0, offset)];
 }
 
+// חוזרים על הרשימה עד שיש מספיק "עותקים" כדי לכסות אפילו מסך רחב מאוד.
+// חשוב במיוחד כשיש מעט תמונות (1-3): בלי זה, ה"סט הבסיסי" קצר מרוחב המסך,
+// והלולאה של ה-marquee הייתה משאירה רגע של מסך ריק בלי תמונות בכלל.
+function repeatToMinimum<T>(items: T[], minCount: number): T[] {
+  if (items.length === 0) return items;
+  const repeats = Math.max(1, Math.ceil(minCount / items.length));
+  const result: T[] = [];
+  for (let i = 0; i < repeats; i++) result.push(...items);
+  return result;
+}
+
 function MarqueeRow({
   items,
   reverse = false,
@@ -110,8 +121,10 @@ function MarqueeRow({
   reverse?: boolean;
   durationSeconds?: number;
 }) {
-  // מכפילים את הרשימה פעמיים כדי שהאנימציה תלולאה בלי "קפיצה" נראית לעין
-  const doubled = [...items, ...items];
+  // "סט בסיס" ארוך מספיק (גם אם יש רק תמונה אחת-שתיים), ואז מכפילים אותו פעמיים
+  // כדי שהאנימציה תלולאה בלי "קפיצה" ובלי רגע שבו נעלמות התמונות מהמסך.
+  const base = repeatToMinimum(items, 16);
+  const doubled = [...base, ...base];
 
   return (
     <div className="marquee-row">
