@@ -1,6 +1,11 @@
-// רקע דקורטיבי: כמה "שורות" של איורי נוף (הרים, מפלים, חוף, יער, אגם, מדבר)
-// שזזות ברצף אינסופי (marquee) מאחורי מסכי ההתחברות/הרשמה.
-// האיורים הם SVG פשוט (בלי תלות ברשת/תמונות חיצוניות) כדי שהרקע תמיד ייטען ולא ישבר.
+import { useEffect, useState } from "react";
+import type { ReactNode } from "react";
+import { listBackgroundImages } from "../api/media";
+
+// רקע דקורטיבי: כמה "שורות" של תמונות שזזות ברצף אינסופי (marquee) מאחורי
+// מסכי ההתחברות/הרשמה. אם הועלו תמונות אמיתיות ל-server/public/backgrounds
+// הן ישמשו כרקע; אם לא (או שהשרת לא זמין) - נופל בחזרה לאיורי SVG גנריים
+// כדי שהמסך תמיד ייראה טוב.
 
 function MountainsScene() {
   return (
@@ -81,7 +86,7 @@ function DesertBalloonScene() {
   );
 }
 
-const SCENES = [
+const FALLBACK_SCENES = [
   MountainsScene,
   WaterfallScene,
   BeachScene,
@@ -90,18 +95,23 @@ const SCENES = [
   DesertBalloonScene,
 ];
 
+function rotate<T>(items: T[], by: number): T[] {
+  if (items.length === 0) return items;
+  const offset = by % items.length;
+  return [...items.slice(offset), ...items.slice(0, offset)];
+}
+
 function MarqueeRow({
+  items,
   reverse = false,
   durationSeconds = 45,
-  offset = 0,
 }: {
+  items: ReactNode[];
   reverse?: boolean;
   durationSeconds?: number;
-  offset?: number;
 }) {
-  // מכפילים את רשימת הסצנות פעמיים כדי שהאנימציה תלולאה בלי "קפיצה" נראית לעין
-  const ordered = [...SCENES.slice(offset), ...SCENES.slice(0, offset)];
-  const doubled = [...ordered, ...ordered];
+  // מכפילים את הרשימה פעמיים כדי שהאנימציה תלולאה בלי "קפיצה" נראית לעין
+  const doubled = [...items, ...items];
 
   return (
     <div className="marquee-row">
@@ -109,9 +119,9 @@ function MarqueeRow({
         className={`marquee-track${reverse ? " reverse" : ""}`}
         style={{ animationDuration: `${durationSeconds}s` }}
       >
-        {doubled.map((Scene, index) => (
+        {doubled.map((node, index) => (
           <div className="scene-card" key={index}>
-            <Scene />
+            {node}
           </div>
         ))}
       </div>
@@ -120,11 +130,32 @@ function MarqueeRow({
 }
 
 export function TravelBackground() {
+  const [uploadedImages, setUploadedImages] = useState<string[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    listBackgroundImages()
+      .then((urls) => {
+        if (!cancelled) setUploadedImages(urls);
+      })
+      .catch(() => {
+        // אין תמונות/השרת לא זמין - פשוט נשארים עם ברירת המחדל (איורי ה-SVG)
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const cards: ReactNode[] =
+    uploadedImages.length > 0
+      ? uploadedImages.map((src) => <img src={src} alt="" loading="lazy" key={src} />)
+      : FALLBACK_SCENES.map((Scene, index) => <Scene key={index} />);
+
   return (
     <div className="auth-background" aria-hidden="true">
-      <MarqueeRow durationSeconds={50} offset={0} />
-      <MarqueeRow reverse durationSeconds={65} offset={2} />
-      <MarqueeRow durationSeconds={40} offset={4} />
+      <MarqueeRow items={rotate(cards, 0)} durationSeconds={50} />
+      <MarqueeRow items={rotate(cards, 2)} reverse durationSeconds={65} />
+      <MarqueeRow items={rotate(cards, 4)} durationSeconds={40} />
     </div>
   );
 }
