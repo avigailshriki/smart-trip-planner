@@ -145,21 +145,18 @@ a {
   z-index: 0;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   overflow: hidden;
-  /* אין צבע רקע בכוונה - רק תמונות (העיגולים חופפים אחד את השני כדי לא להשאיר רווחים) */
+  /* אין צבע רקע בכוונה - רק תמונות, שורות צמודות זו לזו בלי רווחים */
 }
 
 .marquee-row {
-  overflow: visible;
+  flex: 1;
+  overflow: hidden;
   width: 100%;
-}
-.marquee-row + .marquee-row {
-  margin-top: -95px;
 }
 .marquee-track {
   display: flex;
-  align-items: center;
+  height: 100%;
   width: max-content;
   animation-name: marquee-left;
   animation-timing-function: linear;
@@ -186,12 +183,10 @@ a {
 }
 .scene-card {
   flex: 0 0 auto;
-  width: 320px;
-  height: 320px;
-  border-radius: 50%;
+  width: 42vw;
+  min-width: 480px;
+  height: 100%;
   overflow: hidden;
-  margin-inline-end: -85px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 .scene-card svg,
 .scene-card img {
@@ -201,14 +196,10 @@ a {
   object-fit: cover;
 }
 
-@media (max-width: 700px) {
+@media (max-width: 900px) {
   .scene-card {
-    width: 200px;
-    height: 200px;
-    margin-inline-end: -55px;
-  }
-  .marquee-row + .marquee-row {
-    margin-top: -60px;
+    width: 80vw;
+    min-width: 280px;
   }
 }
 
