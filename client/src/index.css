@@ -127,12 +127,92 @@ a {
 
 /* --- Auth pages --- */
 .auth-page {
+  position: relative;
+  /* full-bleed: שוברים את ה-max-width של app-main כדי שהרקע יתפוס את כל רוחב המסך */
+  width: 100vw;
+  margin-inline-start: calc(50% - 50vw);
+  min-height: calc(100vh - 65px);
   display: flex;
+  align-items: center;
   justify-content: center;
-  padding-top: 48px;
+  overflow: hidden;
+  padding: 24px;
 }
+
+.auth-background {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 18px;
+  background: linear-gradient(180deg, #0f172a, #1e2b45);
+}
+.auth-background::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.55) 0%, rgba(15, 23, 42, 0.78) 100%);
+}
+
+.marquee-row {
+  overflow: hidden;
+  width: 100%;
+}
+.marquee-track {
+  display: flex;
+  gap: 18px;
+  width: max-content;
+  animation-name: marquee-left;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+.marquee-track.reverse {
+  animation-name: marquee-right;
+}
+@keyframes marquee-left {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+@keyframes marquee-right {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+.scene-card {
+  flex: 0 0 auto;
+  width: 220px;
+  height: 150px;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+  opacity: 0.9;
+}
+.scene-card svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
+  }
+}
+
 .auth-form {
-  background: var(--color-surface);
+  position: relative;
+  z-index: 1;
+  background: rgba(255, 255, 255, 0.97);
+  backdrop-filter: blur(6px);
   border: 1px solid var(--color-border);
   border-radius: var(--radius);
   padding: 32px;
@@ -141,6 +221,7 @@ a {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.35);
 }
 .auth-form h2 {
   margin: 0 0 8px;

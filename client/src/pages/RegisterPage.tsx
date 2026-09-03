@@ -3,6 +3,7 @@ import type { FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { extractErrorMessage } from "../api/client";
+import { TravelBackground } from "../components/TravelBackground";
 
 export function RegisterPage() {
   const { register } = useAuth();
@@ -29,6 +30,7 @@ export function RegisterPage() {
 
   return (
     <div className="auth-page">
+      <TravelBackground />
       <form className="auth-form" onSubmit={handleSubmit}>
         <h2>הרשמה</h2>
         {error && <p className="form-error">{error}</p>}

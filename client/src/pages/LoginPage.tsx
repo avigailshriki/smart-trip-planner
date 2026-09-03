@@ -3,6 +3,7 @@ import type { FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { extractErrorMessage } from "../api/client";
+import { TravelBackground } from "../components/TravelBackground";
 
 export function LoginPage() {
   const { login } = useAuth();
@@ -28,6 +29,7 @@ export function LoginPage() {
 
   return (
     <div className="auth-page">
+      <TravelBackground />
       <form className="auth-form" onSubmit={handleSubmit}>
         <h2>התחברות</h2>
         {error && <p className="form-error">{error}</p>}
