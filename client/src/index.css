@@ -145,24 +145,25 @@ a {
   z-index: 0;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  gap: 18px;
-  background: linear-gradient(180deg, #0f172a, #1e2b45);
+  /* צבע רקע רק כ"רשת ביטחון" למקרה שהתמונות עוד לא נטענו - אחרת נראות רק תמונות */
+  background: #0f172a;
 }
 .auth-background::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(15, 23, 42, 0.55) 0%, rgba(15, 23, 42, 0.78) 100%);
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.32) 0%, rgba(15, 23, 42, 0.55) 100%);
+  pointer-events: none;
 }
 
 .marquee-row {
+  flex: 1;
   overflow: hidden;
   width: 100%;
 }
 .marquee-track {
   display: flex;
-  gap: 18px;
+  height: 100%;
   width: max-content;
   animation-name: marquee-left;
   animation-timing-function: linear;
@@ -189,12 +190,10 @@ a {
 }
 .scene-card {
   flex: 0 0 auto;
-  width: 220px;
-  height: 150px;
-  border-radius: 14px;
+  width: 32vw;
+  min-width: 340px;
+  height: 100%;
   overflow: hidden;
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
-  opacity: 0.9;
 }
 .scene-card svg,
 .scene-card img {
